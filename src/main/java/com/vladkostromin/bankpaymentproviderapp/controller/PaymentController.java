@@ -1,7 +1,10 @@
 package com.vladkostromin.bankpaymentproviderapp.controller;
 
+import com.vladkostromin.bankpaymentproviderapp.dto.CreditCardDto;
 import com.vladkostromin.bankpaymentproviderapp.dto.TransactionDto;
+import com.vladkostromin.bankpaymentproviderapp.entity.CreditCardEntity;
 import com.vladkostromin.bankpaymentproviderapp.entity.TransactionEntity;
+import com.vladkostromin.bankpaymentproviderapp.mapper.CreditCardMapper;
 import com.vladkostromin.bankpaymentproviderapp.mapper.TransactionMapper;
 import com.vladkostromin.bankpaymentproviderapp.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final TransactionMapper transactionMapper;
+    private final CreditCardMapper creditCardMapper;
 
     @PostMapping("/transactions")
     public Mono<TransactionDto> createTransaction(@RequestBody TransactionDto transactionDto) {

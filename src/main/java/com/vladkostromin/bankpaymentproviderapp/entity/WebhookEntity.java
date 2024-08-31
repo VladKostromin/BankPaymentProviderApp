@@ -8,42 +8,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table("transactions")
+@Table("webhooks")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class TransactionEntity {
+public class WebhookEntity {
 
-    @Id
-    private UUID id;
+    private Long id;
+    private UUID transactionId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private TransactionType transactionType;
     private PaymentMethod paymentMethod;
-    private Integer amount;
     private Currency currency;
-    private Long cardId;
-    private Long customerId;
+    private Long cardData;
     private String language;
-    private String notificationUrl;
-    private TransactionStatus transactionStatus;
-    private Long accountFrom;
-    private Long accountTo;
-
-    @Transient
-    private AccountEntity fromAccount;
-    @Transient
-    private AccountEntity toAccount;
-    @Transient
-    private CreditCardEntity cardData;
-    @Transient
-    private CustomerEntity customer;
+    private Long customerId;
+    private TransactionStatus status;
 }
