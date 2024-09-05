@@ -4,8 +4,6 @@ package com.vladkostromin.bankpaymentproviderapp.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.vladkostromin.bankpaymentproviderapp.entity.CreditCardEntity;
-import com.vladkostromin.bankpaymentproviderapp.entity.CustomerEntity;
 import com.vladkostromin.bankpaymentproviderapp.enums.Currency;
 import com.vladkostromin.bankpaymentproviderapp.enums.PaymentMethod;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionStatus;
