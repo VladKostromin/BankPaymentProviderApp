@@ -22,7 +22,6 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final AccountService accountService;
-    private final MerchantRepository merchantRepository;
     private final CreditCardService creditCardService;
     private final CustomerService customerService;
     private final MerchantService merchantService;
