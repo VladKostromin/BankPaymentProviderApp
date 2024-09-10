@@ -1,5 +1,5 @@
 package com.vladkostromin.bankpaymentproviderapp.enums;
 
-public enum TransactionType {
-    TOP_UP, PAY_OUT
+public enum UserStatus {
+    ACTIVE, BANNED, DELETED
 }

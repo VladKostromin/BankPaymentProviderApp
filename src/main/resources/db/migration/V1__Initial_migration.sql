@@ -1,7 +1,8 @@
 CREATE TABLE users(
                       id bigserial primary key,
                       created_at timestamp default CURRENT_TIMESTAMP,
-                      updated_at timestamp default CURRENT_TIMESTAMP
+                      updated_at timestamp default CURRENT_TIMESTAMP,
+                      status varchar(50)
 );
 
 CREATE TABLE credit_cards(

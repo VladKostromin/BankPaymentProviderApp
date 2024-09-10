@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface CreditCardRepository extends R2dbcRepository<CreditCardEntity, Long> {
     Mono<CreditCardEntity> findByAccountIdAndCardNumber(Long accountId, String cardNumber);
+
+    Mono<CreditCardEntity> findByCardNumber(String cardNumber);
 }
