@@ -38,10 +38,7 @@ public class TransactionEntity {
     private Long accountFrom;
     private Long accountTo;
 
-    @Transient
-    private AccountEntity fromAccount;
-    @Transient
-    private AccountEntity toAccount;
+
     @Transient
     private CreditCardEntity cardData;
     @Transient

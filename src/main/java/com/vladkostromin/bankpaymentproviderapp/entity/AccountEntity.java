@@ -10,8 +10,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Table("accounts")
 @Data
@@ -28,5 +27,5 @@ public class AccountEntity {
     private Long userId;
 
     @Transient
-    private Set<CreditCardEntity> creditCards = new HashSet<>();
+    private List<CreditCardEntity> creditCards;
 }

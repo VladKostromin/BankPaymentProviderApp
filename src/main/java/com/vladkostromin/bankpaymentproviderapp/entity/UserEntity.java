@@ -1,5 +1,6 @@
 package com.vladkostromin.bankpaymentproviderapp.entity;
 
+import com.vladkostromin.bankpaymentproviderapp.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class UserEntity {
     private Long id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private UserStatus status;
 }

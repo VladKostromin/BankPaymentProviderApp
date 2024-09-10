@@ -24,7 +24,4 @@ public class MerchantEntity {
     private String merchantName;
     private String password;
     private Long userId;
-
-    @Transient
-    private UserEntity user;
 }
