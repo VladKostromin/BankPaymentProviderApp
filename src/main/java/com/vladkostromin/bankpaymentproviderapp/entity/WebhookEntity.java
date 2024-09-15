@@ -5,25 +5,23 @@ import com.vladkostromin.bankpaymentproviderapp.enums.PaymentMethod;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionStatus;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Table("webhooks")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
-public class WebhookEntity {
+@SuperBuilder(toBuilder = true)
+public class WebhookEntity extends BaseEntity {
 
-    private Long id;
     private UUID transactionId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private TransactionType transactionType;
     private PaymentMethod paymentMethod;
     private Currency currency;

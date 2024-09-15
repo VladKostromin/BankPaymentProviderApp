@@ -24,6 +24,6 @@ public class BasicServerAuthenticationConverter implements ServerAuthenticationC
         return Mono.justOrEmpty(exchange)
                 .flatMap(header)
                 .flatMap(basicCredentialsValue)
-                .flatMap(basicAuthHandler::createAuthentication);
+                .flatMap(basicAuthHandler::createAuthenticationToken);
     }
 }

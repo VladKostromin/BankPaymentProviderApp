@@ -8,6 +8,7 @@ import com.vladkostromin.bankpaymentproviderapp.mapper.TransactionMapper;
 import com.vladkostromin.bankpaymentproviderapp.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,24 +35,25 @@ public class PaymentController {
         transactionEntity.setTransactionType(TransactionType.TOP_UP);
         return transactionService.createTransaction(transactionEntity)
                 .map(transaction -> TransactionResponse.builder()
-                        .transactionId(transaction.getId())
+                        .transactionId(transaction.getTransactionId())
                         .status(transaction.getTransactionStatus())
                         .message("OK")
                         .build()
         );
     }
 
-    @PostMapping("/payout")
+    @PostMapping("/payouts")
     public Mono<TransactionResponse> createPayOutTransaction(@RequestBody TransactionDto transactionDto) {
         log.info("IN PaymentController.createPayOutTransaction");
         TransactionEntity transactionEntity = transactionMapper.map(transactionDto);
         transactionEntity.setTransactionType(TransactionType.PAY_OUT);
         return transactionService.createTransaction(transactionEntity)
                 .map(transaction -> TransactionResponse.builder()
-                        .transactionId(transaction.getId())
+                        .transactionId(transaction.getTransactionId())
                         .status(transaction.getTransactionStatus())
                         .message("OK")
-                        .build());
+                        .build()
+                );
 
     }
     @GetMapping("/transaction/list")
@@ -71,7 +73,7 @@ public class PaymentController {
     @GetMapping("/transaction/{transactionId}/details")
     public Mono<TransactionDto> getTransactionDetails(@PathVariable UUID transactionId) {
         log.info("IN PaymentController.getTransactionDetails");
-        return transactionService.getTransactionById(transactionId).map(transactionMapper::map);
+        return transactionService.getTransactionByUUID(transactionId).map(transactionMapper::map);
     }
 
 

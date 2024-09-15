@@ -8,13 +8,15 @@ import com.vladkostromin.bankpaymentproviderapp.exceptions.ApiException;
 import com.vladkostromin.bankpaymentproviderapp.exceptions.NotEnoughCurrencyException;
 import com.vladkostromin.bankpaymentproviderapp.service.AccountService;
 import com.vladkostromin.bankpaymentproviderapp.service.TransactionService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Service
@@ -22,15 +24,18 @@ import java.time.LocalDateTime;
 @Slf4j
 public class TransactionProcessingService {
 
+    private static final Duration DURATION_RETRY_INTERVAL = Duration.ofHours(1);
+
     private final TransactionService transactionService;
     private final AccountService accountService;
+    private final WebClient webClient;
 
-    @Transactional
-    @Scheduled(fixedDelay = 5000)
+
+
+    @PostConstruct
     public void processTransactions() {
-        transactionService.getAllTransactionsByTransactionStatus(TransactionStatus.IN_PROGRESS)
-                .flatMap(this::finalizeTransaction)
-                .subscribe();
+
+
     }
 
     private Mono<TransactionEntity> finalizeTransaction(TransactionEntity transaction) {

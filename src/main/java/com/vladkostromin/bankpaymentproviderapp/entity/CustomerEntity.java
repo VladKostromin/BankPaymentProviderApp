@@ -2,25 +2,21 @@ package com.vladkostromin.bankpaymentproviderapp.entity;
 
 import com.vladkostromin.bankpaymentproviderapp.enums.Country;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
-
 @Table("customers")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
-public class CustomerEntity {
-    @Id
-    private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+@SuperBuilder(toBuilder = true)
+public class CustomerEntity extends BaseEntity {
+
     private String firstName;
     private String lastName;
     private Country country;

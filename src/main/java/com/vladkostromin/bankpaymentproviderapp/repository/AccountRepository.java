@@ -5,5 +5,5 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Mono;
 
 public interface AccountRepository extends R2dbcRepository<AccountEntity, Long> {
-    Mono<AccountEntity> findAccountEntitiesByUserId(Long userId);
+    Mono<AccountEntity> findByUserId(Long userId);
 }

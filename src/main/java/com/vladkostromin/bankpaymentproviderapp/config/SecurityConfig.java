@@ -5,7 +5,9 @@ import com.vladkostromin.bankpaymentproviderapp.security.BasicServerAuthenticati
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -14,27 +16,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final BasicServerAuthenticationConverter basicServerAuthenticationConverter;
-
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, AuthenticationManager authenticationManager) {
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, AuthenticationManager authenticationManager, BasicServerAuthenticationConverter basicServerAuthenticationConverter) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        .pathMatchers(HttpMethod.OPTIONS)
-                        .permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/merchants/registration")
                         .permitAll()
                         .anyExchange()
                         .authenticated())
                 .authenticationManager(authenticationManager)
-                .addFilterAt(authenticationWebFilter(authenticationManager), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(authenticationWebFilter(authenticationManager, basicServerAuthenticationConverter), SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 
@@ -44,10 +45,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationWebFilter authenticationWebFilter(AuthenticationManager authenticationManager) {
+    public AuthenticationWebFilter authenticationWebFilter(AuthenticationManager authenticationManager, BasicServerAuthenticationConverter basicServerAuthenticationConverter) {
         AuthenticationWebFilter basicAuthenticationFilter = new AuthenticationWebFilter(authenticationManager);
         basicAuthenticationFilter.setServerAuthenticationConverter(basicServerAuthenticationConverter);
         basicAuthenticationFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/**"));
         return basicAuthenticationFilter;
+    }
+
+    @Bean
+    public WebClient webClient() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8090/")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultUriVariables(Collections.singletonMap("url", "http://localhost:8090/"))
+                .build();
+
     }
 }

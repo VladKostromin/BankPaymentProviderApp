@@ -1,25 +1,20 @@
 package com.vladkostromin.bankpaymentproviderapp.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.time.LocalDateTime;
 
 @Table("credit_cards")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
-public class CreditCardEntity {
+@SuperBuilder(toBuilder = true)
+public class CreditCardEntity extends BaseEntity {
 
-    @Id
-    private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private Long accountId;
     private String cardNumber;
     private String expDate;

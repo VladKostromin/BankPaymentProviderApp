@@ -1,6 +1,7 @@
 package com.vladkostromin.bankpaymentproviderapp.service;
 
 import com.vladkostromin.bankpaymentproviderapp.entity.MerchantEntity;
+import com.vladkostromin.bankpaymentproviderapp.exceptions.ObjectNotFoundException;
 import com.vladkostromin.bankpaymentproviderapp.repository.MerchantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +36,7 @@ public class MerchantService {
     }
 
     public Mono<MerchantEntity> getMerchantByMerchantName(String merchantName) {
-        return merchantRepository.findByMerchantName(merchantName);
+        return merchantRepository.findByMerchantName(merchantName)
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Merchant with name " + merchantName + " not found")));
     }
 }

@@ -1,17 +1,22 @@
 package com.vladkostromin.bankpaymentproviderapp.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
+
 @Data
-@EqualsAndHashCode(callSuper = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MerchantDto extends BaseDto {
+public class BaseDto {
 
-    private String merchantName;
-    private String password;
-    private Long userId;
+    @JsonIgnore
+    private Long id;
+    @JsonIgnore
+    private LocalDateTime createdAt;
+    @JsonIgnore
+    private LocalDateTime updatedAt;
 }

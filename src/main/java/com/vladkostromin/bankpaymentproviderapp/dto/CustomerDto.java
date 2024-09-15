@@ -5,17 +5,16 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vladkostromin.bankpaymentproviderapp.enums.Country;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CustomerDto {
+public class CustomerDto extends BaseDto {
 
-    private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
     private String firstName;
     private String lastName;
     private Country country;

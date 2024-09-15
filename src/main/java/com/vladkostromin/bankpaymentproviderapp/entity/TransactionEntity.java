@@ -5,27 +5,24 @@ import com.vladkostromin.bankpaymentproviderapp.enums.PaymentMethod;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionStatus;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Table("transactions")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
-public class TransactionEntity {
+@SuperBuilder(toBuilder = true)
+public class TransactionEntity extends BaseEntity {
 
-    @Id
-    private UUID id;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private UUID transactionId;
     private TransactionType transactionType;
     private PaymentMethod paymentMethod;
     private Integer amount;

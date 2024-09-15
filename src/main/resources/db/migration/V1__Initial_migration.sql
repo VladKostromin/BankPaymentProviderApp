@@ -45,24 +45,25 @@ CREATE TABLE accounts(
 );
 
 CREATE TABLE transactions(
-                             id uuid primary key default uuid_generate_v4(),
-                             created_at timestamp default CURRENT_TIMESTAMP,
-                             updated_at timestamp default CURRENT_TIMESTAMP,
-                             transaction_type varchar(50),
-                             payment_method varchar(50),
-                             amount int,
-                             currency varchar(3),
-                             card_id bigserial,
-                             customer_id bigserial,
-                             language varchar(2),
-                             notification_url varchar(255),
-                             transaction_status varchar(50),
-                             account_from bigserial,
-                             account_to bigserial,
-                             foreign key (customer_id) references customers(id),
-                             foreign key (card_id) references credit_cards(id),
-                             foreign key (account_from) references accounts(id),
-                             foreign key (account_to) references accounts(id)
+    id bigserial primary key,
+    transaction_id uuid,
+    created_at timestamp default CURRENT_TIMESTAMP,
+    updated_at timestamp default CURRENT_TIMESTAMP,
+    transaction_type varchar(50),
+    payment_method varchar(50),
+    amount int,
+    currency varchar(3),
+    card_id bigserial,
+    customer_id bigserial,
+    language varchar(2),
+    notification_url varchar(255),
+    transaction_status varchar(50),
+    account_from bigserial,
+    account_to bigserial,
+    foreign key (customer_id) references customers(id),
+    foreign key (card_id) references credit_cards(id),
+    foreign key (account_from) references accounts(id),
+    foreign key (account_to) references accounts(id)
 );
 
 CREATE TABLE webhooks(
@@ -77,7 +78,6 @@ CREATE TABLE webhooks(
     language varchar(2),
     customer_id bigserial,
     transaction_status varchar(50),
-    foreign key (transaction_id) references transactions(id),
     foreign key (customer_id) references customers(id),
     foreign key (card_data) references credit_cards(id)
 )

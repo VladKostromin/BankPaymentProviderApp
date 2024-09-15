@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class BasicAuthHandler {
 
-    public Mono<Authentication> createAuthentication(String rawCredentials) {
+    public Mono<Authentication> createAuthenticationToken(String rawCredentials) {
         String credentials = new String(Base64.getDecoder().decode(rawCredentials));
         String[] parts = credentials.split(":", 2);
         if(parts.length == 2) {

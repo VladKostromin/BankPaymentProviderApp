@@ -1,26 +1,20 @@
 package com.vladkostromin.bankpaymentproviderapp.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.time.LocalDateTime;
 
 @Table("merchants")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
-public class MerchantEntity {
+@SuperBuilder(toBuilder = true)
+public class MerchantEntity extends BaseEntity {
 
-    @Id
-    private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private String merchantName;
     private String password;
     private Long userId;
