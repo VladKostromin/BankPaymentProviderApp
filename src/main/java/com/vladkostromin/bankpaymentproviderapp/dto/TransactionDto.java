@@ -9,14 +9,20 @@ import com.vladkostromin.bankpaymentproviderapp.enums.Currency;
 import com.vladkostromin.bankpaymentproviderapp.enums.PaymentMethod;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionStatus;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransactionDto extends BaseDto {

@@ -29,12 +29,18 @@ public class CustomerService {
                         .lastName(customerEntity.getLastName())
                         .country(customerEntity.getCountry())
                         .userId(user.getId())
+                        .user(user)
                 .build()));
     }
-    public Mono<CustomerEntity> getCustomerEntitiesByFirstNameAndLastNameAndCountry(String firstName, String lastName, Country country) {
+    public Mono<CustomerEntity> getCustomerByFirstNameLastNameAndCountry(String firstName, String lastName, Country country) {
         log.info("IN getCustomerEntitiesByFirstNameAndLastNameAndCountry");
-        return customerRepository.findCustomerEntitiesByFirstNameAndLastNameAndCountry(firstName, lastName, country)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Customer not found")));
+        return customerRepository.findByFirstNameAndLastNameAndCountry(firstName, lastName, country)
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Customer not found")))
+                .flatMap(customer -> userService.getUserById(customer.getUserId())
+                        .flatMap(user -> {
+                            customer.setUser(user);
+                            return Mono.just(customer);
+                        }));
     }
 
     public Mono<CustomerEntity> getCustomerById(Long customerId) {

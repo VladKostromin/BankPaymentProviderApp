@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public interface TransactionRepository extends R2dbcRepository<TransactionEntity, UUID> {
+public interface TransactionRepository extends R2dbcRepository<TransactionEntity, Long> {
 
     Mono<TransactionEntity> findTransactionEntityByTransactionId(UUID transactionId);
 

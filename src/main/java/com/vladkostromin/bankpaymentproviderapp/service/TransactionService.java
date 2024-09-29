@@ -6,6 +6,8 @@ import com.vladkostromin.bankpaymentproviderapp.entity.CustomerEntity;
 import com.vladkostromin.bankpaymentproviderapp.entity.TransactionEntity;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionStatus;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionType;
+import com.vladkostromin.bankpaymentproviderapp.exceptions.ApiException;
+import com.vladkostromin.bankpaymentproviderapp.exceptions.InvalidTransactionTypeException;
 import com.vladkostromin.bankpaymentproviderapp.exceptions.NotEnoughCurrencyException;
 import com.vladkostromin.bankpaymentproviderapp.exceptions.ObjectNotFoundException;
 import com.vladkostromin.bankpaymentproviderapp.repository.TransactionRepository;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,7 +48,7 @@ public class TransactionService {
     }
 
     private Mono<CustomerEntity> processCustomer(CustomerEntity customer) {
-        return customerService.getCustomerEntitiesByFirstNameAndLastNameAndCountry(
+        return customerService.getCustomerByFirstNameLastNameAndCountry(
                         customer.getFirstName(),
                         customer.getLastName(),
                         customer.getCountry()
@@ -72,27 +75,55 @@ public class TransactionService {
                 });
     }
 
-    private Mono<TransactionEntity> setTransactionDetails(TransactionEntity transactionEntity, CustomerEntity customer, AccountEntity customerAccount, AccountEntity merchantAccount, CreditCardEntity creditCard) {
-        if (transactionEntity.getTransactionType().equals(TransactionType.TOP_UP)) {
-            if(customerAccount.getAmount() < transactionEntity.getAmount()) {
-                return Mono.error(new NotEnoughCurrencyException("Insufficient funds for transaction"));
-            }
-            transactionEntity.setAccountFrom(customerAccount.getId());
-            transactionEntity.setAccountTo(merchantAccount.getId());
-        } else {
-            if(merchantAccount.getAmount() < transactionEntity.getAmount()) {
-                return Mono.error(new NotEnoughCurrencyException("Insufficient funds for transaction"));
-            }
-            transactionEntity.setAccountFrom(merchantAccount.getId());
-            transactionEntity.setAccountTo(customerAccount.getId());
+    private Mono<Tuple2<AccountEntity, AccountEntity>> processTopUp(TransactionEntity transactionEntity, AccountEntity customerAccount, AccountEntity merchantAccount) {
+        if (customerAccount.getAmount() < transactionEntity.getAmount()) {
+            return Mono.error(new NotEnoughCurrencyException("Insufficient funds for transaction"));
         }
+        transactionEntity.setAccountFrom(customerAccount.getId());
+        transactionEntity.setAccountTo(merchantAccount.getId());
+        customerAccount.setAmount(customerAccount.getAmount() - transactionEntity.getAmount());
+        merchantAccount.setAmount(merchantAccount.getAmount() + transactionEntity.getAmount());
+        return accountService.updateAccount(customerAccount)
+                .zipWith(accountService.updateAccount(merchantAccount));
+    }
+
+    private Mono<Tuple2<AccountEntity, AccountEntity>> processPayOut(TransactionEntity transactionEntity, AccountEntity customerAccount, AccountEntity merchantAccount) {
+        if (merchantAccount.getAmount() < transactionEntity.getAmount()) {
+            return Mono.error(new NotEnoughCurrencyException("Insufficient funds for transaction"));
+        }
+        transactionEntity.setAccountFrom(merchantAccount.getId());
+        transactionEntity.setAccountTo(customerAccount.getId());
+        merchantAccount.setAmount(merchantAccount.getAmount() - transactionEntity.getAmount());
+        customerAccount.setAmount(customerAccount.getAmount() + transactionEntity.getAmount());
+        return accountService.updateAccount(customerAccount)
+                .zipWith(accountService.updateAccount(merchantAccount));
+    }
+
+    private Mono<Tuple2<AccountEntity, AccountEntity>> processFunds(TransactionEntity transactionEntity, AccountEntity customerAccount, AccountEntity merchantAccount) {
+        if(transactionEntity.getTransactionType().equals(TransactionType.TOP_UP)) {
+            log.info("Processing TOP_UP: customerAccount={}, merchantAccount={}", customerAccount.getId(), merchantAccount.getId());
+            return processTopUp(transactionEntity, customerAccount, merchantAccount);
+        } else if(transactionEntity.getTransactionType().equals(TransactionType.PAY_OUT)) {
+            log.info("Processing PAY_OUT: customerAccount={}, merchantAccount={}", customerAccount.getId(), merchantAccount.getId());
+            return processPayOut(transactionEntity, customerAccount, merchantAccount);
+        } else {
+            return Mono.error(new InvalidTransactionTypeException("Invalid transaction type"));
+        }
+    }
+
+    private Mono<TransactionEntity> setTransactionDetails(TransactionEntity transactionEntity, CustomerEntity customer, AccountEntity customerAccount, AccountEntity merchantAccount, CreditCardEntity creditCard) {
         transactionEntity.setTransactionId(UUID.randomUUID());
         transactionEntity.setCustomerId(customer.getId());
         transactionEntity.setCardId(creditCard.getId());
         transactionEntity.setCreatedAt(LocalDateTime.now());
         transactionEntity.setUpdatedAt(LocalDateTime.now());
         transactionEntity.setTransactionStatus(TransactionStatus.IN_PROGRESS);
-        return transactionRepository.save(transactionEntity);
+        return processFunds(transactionEntity, customerAccount, merchantAccount)
+                .flatMap(tuple -> transactionRepository.save(transactionEntity))
+                .onErrorResume(e -> {
+                    log.error("Error during processing transaction: {}", transactionEntity.getTransactionId(), e);
+                    return Mono.error(e);
+                });
     }
 
     public Mono<TransactionEntity> getTransactionByUUID(UUID id) {
@@ -111,15 +142,15 @@ public class TransactionService {
                                 transaction.setCardData(creditCardEntity);
                                 return Mono.just(transaction);
                             });
-                })
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Transaction not found")));
+                });
     }
 
     public Mono<TransactionEntity> updateTransaction(TransactionEntity transactionEntity) {
         log.info("IN TransactionService.updateTransaction");
         transactionEntity.setUpdatedAt(LocalDateTime.now());
-        return transactionRepository.save(transactionEntity)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Transaction not found")));
+        return transactionRepository.findTransactionEntityByTransactionId(transactionEntity.getTransactionId())
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Transaction not found")))
+                .flatMap(existingTransaction -> transactionRepository.save(transactionEntity));
     }
 
     public Flux<TransactionEntity> getTransactionsForPeriod(LocalDateTime startDate, LocalDateTime endDate) {
@@ -131,7 +162,7 @@ public class TransactionService {
     public Flux<TransactionEntity> getAllTransactionsByTransactionStatus(TransactionStatus transactionStatus) {
         log.info("IN TransactionService.getAllTransactionsInProgress");
         return transactionRepository.findTransactionEntitiesByTransactionStatus(transactionStatus)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("No transactions with: " + transactionStatus + " found")));
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("No transactions with status: " + transactionStatus + " found")));
     }
 
 

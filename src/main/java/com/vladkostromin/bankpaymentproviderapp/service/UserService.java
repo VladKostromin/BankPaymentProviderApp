@@ -2,6 +2,7 @@ package com.vladkostromin.bankpaymentproviderapp.service;
 
 import com.vladkostromin.bankpaymentproviderapp.entity.UserEntity;
 import com.vladkostromin.bankpaymentproviderapp.enums.UserStatus;
+import com.vladkostromin.bankpaymentproviderapp.exceptions.ObjectNotFoundException;
 import com.vladkostromin.bankpaymentproviderapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,8 @@ public class UserService {
     }
 
     public Mono<UserEntity> getUserById(Long id) {
-        return userRepository.findById(id);
+        return userRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("User not found")));
     }
 
     public Mono<UserEntity> banUser(UserEntity userEntity) {
@@ -34,7 +36,7 @@ public class UserService {
     }
 
     public Mono<UserEntity> safeDeleteUser(UserEntity userEntity) {
-        userEntity.setStatus(UserStatus.DELETED);
+        userEntity.setStatus(UserStatus.BANNED);
         return userRepository.save(userEntity);
     }
     public Mono<UserEntity> restoreBannedDeletedUser(UserEntity userEntity) {

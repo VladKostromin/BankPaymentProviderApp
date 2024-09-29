@@ -20,7 +20,7 @@ public class MerchantService {
     private final AccountService accountService;
     private final UserService userService;
 
-    @Transactional
+
     public Mono<MerchantEntity> saveMerchant(MerchantEntity merchantEntity) {
         return userService.createUser()
                 .flatMap(user -> {
@@ -37,6 +37,11 @@ public class MerchantService {
 
     public Mono<MerchantEntity> getMerchantByMerchantName(String merchantName) {
         return merchantRepository.findByMerchantName(merchantName)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Merchant with name " + merchantName + " not found")));
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Merchant with name " + merchantName + " not found")))
+                .flatMap(merchant -> userService.getUserById(merchant.getUserId())
+                        .flatMap(user -> {
+                            merchant.setUser(user);
+                            return Mono.just(merchant);
+                        }));
     }
 }

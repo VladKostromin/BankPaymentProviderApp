@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -23,14 +24,17 @@ import java.util.Collections;
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
+@EnableScheduling
 public class SecurityConfig {
+
+    private static final String[] pathMatches = {"/api/v1/merchants/registration","/api/bank-api/process-transaction", "api/merchant-api/receive-webhook"};
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, AuthenticationManager authenticationManager, BasicServerAuthenticationConverter basicServerAuthenticationConverter) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        .pathMatchers(HttpMethod.POST, "/api/v1/merchants/registration")
+                        .pathMatchers(HttpMethod.POST, pathMatches)
                         .permitAll()
                         .anyExchange()
                         .authenticated())

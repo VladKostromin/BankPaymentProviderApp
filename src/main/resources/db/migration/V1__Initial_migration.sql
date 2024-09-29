@@ -74,10 +74,11 @@ CREATE TABLE webhooks(
     transaction_type varchar(50),
     payment_method varchar(50),
     currency varchar(3),
-    card_data bigserial,
+    card_id bigserial,
     language varchar(2),
     customer_id bigserial,
-    transaction_status varchar(50),
+    web_hook_status varchar(50),
+    message varchar(255),
     foreign key (customer_id) references customers(id),
-    foreign key (card_data) references credit_cards(id)
+    foreign key (card_id) references credit_cards(id)
 )

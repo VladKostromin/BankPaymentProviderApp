@@ -6,6 +6,6 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Mono;
 
 public interface CustomerRepository extends R2dbcRepository<CustomerEntity, Long> {
-    Mono<CustomerEntity> findCustomerEntitiesByFirstNameAndLastNameAndCountry(String firstName, String lastName, Country country);
+    Mono<CustomerEntity> findByFirstNameAndLastNameAndCountry(String firstName, String lastName, Country country);
 
 }

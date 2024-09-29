@@ -1,5 +1,6 @@
 package com.vladkostromin.bankpaymentproviderapp.utils;
 
+import com.vladkostromin.bankpaymentproviderapp.dto.CreditCardDto;
 import com.vladkostromin.bankpaymentproviderapp.entity.CreditCardEntity;
 
 import java.time.LocalDateTime;
@@ -12,8 +13,6 @@ public class CreditCardDataUtils {
 
     public static CreditCardEntity getCreditCardDataTransient() {
         return CreditCardEntity.builder()
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .cardNumber("4123456789123456")
                 .expDate("11/26")
                 .cvv("567")
@@ -34,5 +33,13 @@ public class CreditCardDataUtils {
 
     public static List<CreditCardEntity> getCreditCardDataList() {
         return List.of(getCreditCardDataPersistent(), getCreditCardDataPersistent());
+    }
+
+    public static CreditCardDto getCreditCardDataDtoTransient() {
+        return CreditCardDto.builder()
+                .cardNumber("4123456789123456")
+                .expDate("11/26")
+                .cvv("567")
+                .build();
     }
 }

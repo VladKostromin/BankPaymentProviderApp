@@ -84,8 +84,8 @@ public class AccountServiceTests {
     public void givenAccountToUpdate_whenAccountUpdated_thenAmountIsChanged() {
         //given
         AccountEntity currentAccount = AccountDataUtils.getAccountPersistent();
+        currentAccount.setUpdatedAt(LocalDateTime.now().minusDays(1));
         AccountEntity accountToUpdate = currentAccount.toBuilder()
-                .updatedAt(LocalDateTime.now().plusMinutes(1))
                 .amount(currentAccount.getAmount() - 1000)
                 .build();
         BDDMockito.given(accountRepository.findById(anyLong()))

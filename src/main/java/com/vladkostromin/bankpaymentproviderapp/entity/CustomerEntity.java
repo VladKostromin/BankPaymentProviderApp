@@ -23,7 +23,5 @@ public class CustomerEntity extends BaseEntity {
     private Long userId;
 
     @Transient
-    private AccountEntity account;
-    @Transient
     private UserEntity user;
 }

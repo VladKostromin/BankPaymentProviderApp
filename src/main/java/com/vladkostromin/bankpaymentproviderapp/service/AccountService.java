@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +55,10 @@ public class AccountService {
                 .switchIfEmpty(Mono.error(new ObjectNotFoundException("Account not found")))
                 .flatMap(account -> creditCardService.getAllCreditCardsByAccountId(account.getId())
                         .collectList()
+                        .onErrorResume(ObjectNotFoundException.class, e -> {
+                            log.info("No credit cards found for accountId: {}. Returning account with empty credit card list.", account.getId());
+                            return Mono.just(Collections.emptyList());
+                        })
                         .map(creditCards -> {
                             account.setCreditCards(creditCards);
                             return account;
