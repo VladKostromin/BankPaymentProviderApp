@@ -525,6 +525,10 @@ public class TransactionServiceTests {
 
         BDDMockito.given(transactionRepository.findTransactionEntitiesByTransactionStatus(any(TransactionStatus.class)))
                 .willReturn(Flux.just(TransactionDataUtils.getTransactionPersistent()));
+        BDDMockito.given(customerService.getCustomerById(anyLong()))
+                .willReturn(Mono.just(CustomerDataUtils.getCustomerPersistent()));
+        BDDMockito.given(creditCardService.getCreditCardById(anyLong()))
+                .willReturn(Mono.just(CreditCardDataUtils.getCreditCardDataPersistent()));
         //when
         Flux<TransactionEntity> retrievedTransactions = transactionServiceUnderTest.getAllTransactionsByTransactionStatus(status);
         //then

@@ -72,6 +72,7 @@ CREATE TABLE webhooks(
     created_at timestamp default CURRENT_TIMESTAMP,
     updated_at timestamp default CURRENT_TIMESTAMP,
     transaction_type varchar(50),
+    transaction_status varchar(50),
     payment_method varchar(50),
     currency varchar(3),
     card_id bigserial,

@@ -46,6 +46,11 @@ public class CustomerService {
     public Mono<CustomerEntity> getCustomerById(Long customerId) {
         log.info("IN getCustomerById");
         return customerRepository.findById(customerId)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Customer not found")));
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("Customer not found")))
+                .flatMap(customer -> userService.getUserById(customer.getUserId())
+                        .flatMap(user -> {
+                            customer.setUser(user);
+                            return Mono.just(customer);
+                        }));
     }
 }

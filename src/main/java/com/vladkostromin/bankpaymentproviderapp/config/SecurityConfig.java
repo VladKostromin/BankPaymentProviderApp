@@ -27,7 +27,7 @@ import java.util.Collections;
 @EnableScheduling
 public class SecurityConfig {
 
-    private static final String[] pathMatches = {"/api/v1/merchants/registration","/api/bank-api/process-transaction", "api/merchant-api/receive-webhook"};
+    private static final String[] pathMatches = {"/api/v1/merchants/registration","/api/bank-api/process-transaction", "/api/merchant-api/receive-webhook"};
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, AuthenticationManager authenticationManager, BasicServerAuthenticationConverter basicServerAuthenticationConverter) {

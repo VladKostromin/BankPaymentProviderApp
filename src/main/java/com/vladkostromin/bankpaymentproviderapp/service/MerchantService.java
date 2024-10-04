@@ -6,7 +6,6 @@ import com.vladkostromin.bankpaymentproviderapp.repository.MerchantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -43,5 +42,9 @@ public class MerchantService {
                             merchant.setUser(user);
                             return Mono.just(merchant);
                         }));
+    }
+
+    public Mono<Void> deleteAllMerchants() {
+        return merchantRepository.deleteAll();
     }
 }

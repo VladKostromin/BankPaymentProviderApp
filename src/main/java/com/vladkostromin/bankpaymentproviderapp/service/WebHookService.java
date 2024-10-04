@@ -29,28 +29,29 @@ public class WebHookService {
 
     private Mono<Void> sendWebHookWithRetries(TransactionEntity transaction, int retriesLeft) {
         if (retriesLeft == 0) {
-            log.error("Max retries reached for transaction: {}", transaction);
+            log.error("Max retries reached for transaction: {}", transaction.getTransactionId());
             return saveWebHook(transaction, WebHookStatus.FAILED, "Max retries reached");
         }
+
         return webClient.post()
                 .uri(transaction.getNotificationUrl())
                 .bodyValue(transaction)
                 .retrieve()
                 .toBodilessEntity()
                 .flatMap(responseEntity -> {
-                    if(responseEntity.getStatusCode().is2xxSuccessful()) {
-                        log.info("Webhook successful for transaction: {}", transaction.getTransactionId());
-                        return saveWebHook(transaction, WebHookStatus.SENT, "Webhook sent successfully");
-                    } else {
-                        log.error("Webhook failed, retries left: {}", retriesLeft - 1);
-                        return saveWebHook(transaction, WebHookStatus.FAILED, "Failed to save webhook")
-                                .then(Mono.delay(Duration.ofSeconds(10)))
-                                .then(sendWebHookWithRetries(transaction, retriesLeft - 1));
-                    }
+                    log.info("Webhook successful for transaction: {}", transaction.getTransactionId());
+                    return saveWebHook(transaction, WebHookStatus.SENT, "Webhook sent successfully");
+                })
+                .onErrorResume(error -> {
+                    log.error("Error occurred while sending webhook: {}, retries left: {}", error.getMessage(), retriesLeft - 1);
+                    return saveWebHook(transaction, WebHookStatus.FAILED,
+                            "Error sending webhook: " + error.getMessage())
+                            .then(Mono.delay(Duration.ofSeconds(10)))
+                            .then(sendWebHookWithRetries(transaction, retriesLeft - 1));
                 });
     }
 
-    public Mono<Void> saveWebHook(TransactionEntity transaction, WebHookStatus status, String message) {
+    private Mono<Void> saveWebHook(TransactionEntity transaction, WebHookStatus status, String message) {
         return webHookRepository.save(WebhookEntity.builder()
                         .transactionId(transaction.getTransactionId())
                         .createdAt(LocalDateTime.now())
@@ -65,9 +66,8 @@ public class WebHookService {
                         .customer(transaction.getCustomer())
                         .message(message)
                         .webHookStatus(status)
+                        .transactionStatus(transaction.getTransactionStatus())
                 .build()).then();
     }
-
-
 
 }

@@ -120,6 +120,8 @@ public class CustomerServiceTests {
         Long id = 1L;
         BDDMockito.given(customerRepository.findById(anyLong()))
                 .willReturn(Mono.just(CustomerDataUtils.getCustomerPersistent()));
+        BDDMockito.given(userService.getUserById(anyLong()))
+                .willReturn(Mono.just(UserDataUtils.getUserData()));
         //when
         Mono<CustomerEntity> obtainedCustomer = customerServiceUnderTest.getCustomerById(id);
         //then

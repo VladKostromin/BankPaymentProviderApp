@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.vladkostromin'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 
 java {
     toolchain {
@@ -52,6 +52,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     runtimeOnly 'org.postgresql:r2dbc-postgresql'
+    runtimeOnly 'org.springframework.boot:spring-boot-docker-compose'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 

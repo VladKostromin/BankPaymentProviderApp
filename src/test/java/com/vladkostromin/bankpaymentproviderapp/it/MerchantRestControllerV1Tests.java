@@ -4,7 +4,6 @@ package com.vladkostromin.bankpaymentproviderapp.it;
 import com.vladkostromin.bankpaymentproviderapp.config.PostgresSQLTestcontainersConfig;
 import com.vladkostromin.bankpaymentproviderapp.dto.MerchantDto;
 import com.vladkostromin.bankpaymentproviderapp.repository.MerchantRepository;
-import com.vladkostromin.bankpaymentproviderapp.service.MerchantService;
 import com.vladkostromin.bankpaymentproviderapp.utils.MerchantDataUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -31,7 +29,6 @@ public class MerchantRestControllerV1Tests {
     @Autowired
     private WebTestClient webTestClient;
 
-    private MerchantService merchantService;
 
     @BeforeEach
     public void setUp() {

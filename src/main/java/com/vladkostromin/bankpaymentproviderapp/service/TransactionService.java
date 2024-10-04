@@ -6,7 +6,6 @@ import com.vladkostromin.bankpaymentproviderapp.entity.CustomerEntity;
 import com.vladkostromin.bankpaymentproviderapp.entity.TransactionEntity;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionStatus;
 import com.vladkostromin.bankpaymentproviderapp.enums.TransactionType;
-import com.vladkostromin.bankpaymentproviderapp.exceptions.ApiException;
 import com.vladkostromin.bankpaymentproviderapp.exceptions.InvalidTransactionTypeException;
 import com.vladkostromin.bankpaymentproviderapp.exceptions.NotEnoughCurrencyException;
 import com.vladkostromin.bankpaymentproviderapp.exceptions.ObjectNotFoundException;
@@ -75,6 +74,22 @@ public class TransactionService {
                 });
     }
 
+
+    private Mono<TransactionEntity> setTransactionDetails(TransactionEntity transactionEntity, CustomerEntity customer, AccountEntity customerAccount, AccountEntity merchantAccount, CreditCardEntity creditCard) {
+        transactionEntity.setTransactionId(UUID.randomUUID());
+        transactionEntity.setCustomerId(customer.getId());
+        transactionEntity.setCardId(creditCard.getId());
+        transactionEntity.setCreatedAt(LocalDateTime.now());
+        transactionEntity.setUpdatedAt(LocalDateTime.now());
+        transactionEntity.setTransactionStatus(TransactionStatus.IN_PROGRESS);
+        return processFunds(transactionEntity, customerAccount, merchantAccount)
+                .flatMap(tuple -> transactionRepository.save(transactionEntity))
+                .onErrorResume(e -> {
+                    log.error("Error during processing transaction: {}", transactionEntity.getTransactionId(), e);
+                    return Mono.error(e);
+                });
+    }
+
     private Mono<Tuple2<AccountEntity, AccountEntity>> processTopUp(TransactionEntity transactionEntity, AccountEntity customerAccount, AccountEntity merchantAccount) {
         if (customerAccount.getAmount() < transactionEntity.getAmount()) {
             return Mono.error(new NotEnoughCurrencyException("Insufficient funds for transaction"));
@@ -109,21 +124,6 @@ public class TransactionService {
         } else {
             return Mono.error(new InvalidTransactionTypeException("Invalid transaction type"));
         }
-    }
-
-    private Mono<TransactionEntity> setTransactionDetails(TransactionEntity transactionEntity, CustomerEntity customer, AccountEntity customerAccount, AccountEntity merchantAccount, CreditCardEntity creditCard) {
-        transactionEntity.setTransactionId(UUID.randomUUID());
-        transactionEntity.setCustomerId(customer.getId());
-        transactionEntity.setCardId(creditCard.getId());
-        transactionEntity.setCreatedAt(LocalDateTime.now());
-        transactionEntity.setUpdatedAt(LocalDateTime.now());
-        transactionEntity.setTransactionStatus(TransactionStatus.IN_PROGRESS);
-        return processFunds(transactionEntity, customerAccount, merchantAccount)
-                .flatMap(tuple -> transactionRepository.save(transactionEntity))
-                .onErrorResume(e -> {
-                    log.error("Error during processing transaction: {}", transactionEntity.getTransactionId(), e);
-                    return Mono.error(e);
-                });
     }
 
     public Mono<TransactionEntity> getTransactionByUUID(UUID id) {
@@ -162,7 +162,23 @@ public class TransactionService {
     public Flux<TransactionEntity> getAllTransactionsByTransactionStatus(TransactionStatus transactionStatus) {
         log.info("IN TransactionService.getAllTransactionsInProgress");
         return transactionRepository.findTransactionEntitiesByTransactionStatus(transactionStatus)
-                .switchIfEmpty(Mono.error(new ObjectNotFoundException("No transactions with status: " + transactionStatus + " found")));
+                .switchIfEmpty(Mono.error(new ObjectNotFoundException("No transactions with status: " + transactionStatus + " found")))
+                .flatMap(transaction -> Mono.zip(customerService.getCustomerById(transaction.getCustomerId()),
+                        creditCardService.getCreditCardById(transaction.getCardId())
+                ).map(tuple -> {
+                    transaction.setCustomer(tuple.getT1());
+                    transaction.setCardData(tuple.getT2());
+                    return transaction;
+                }));
+    }
+
+    public Mono<Void> deleteAllTransactions() {
+        log.info("IN TransactionService.deleteAllTransactions");
+        return transactionRepository.deleteAll();
+    }
+    public Flux<TransactionEntity> getAllTransactions() {
+        log.info("IN TransactionService.getAllTransactions");
+        return transactionRepository.findAll();
     }
 
 

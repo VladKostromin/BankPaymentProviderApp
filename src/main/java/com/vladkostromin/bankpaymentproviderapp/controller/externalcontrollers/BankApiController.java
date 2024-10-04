@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Random;
 
 @RestController
@@ -24,14 +25,15 @@ public class BankApiController {
     @PostMapping("/process-transaction")
     public Mono<ResponseEntity<TransactionEntity>> processTransaction(@RequestBody TransactionEntity transaction) {
         Random random = new Random();
-        if(random.nextInt(100) < 80) {
-            log.info(transaction.toString());
-            return Mono.just(ResponseEntity.ok(transaction));
-        }
-        else {
-            log.info(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-            return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(transaction));
-        }
-
+        return Mono.delay(Duration.ofSeconds(2))
+                .flatMap(delay -> {
+                    if (random.nextInt(100) < 80) {
+                        log.info("Transaction processed successfully: {}", transaction.toString());
+                        return Mono.just(ResponseEntity.ok(transaction));
+                    } else {
+                        log.info("Transaction failed: {}", HttpStatus.INTERNAL_SERVER_ERROR);
+                        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(transaction));
+                    }
+                });
     }
 }

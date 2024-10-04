@@ -21,6 +21,7 @@ public class WebhookEntity extends BaseEntity {
 
     private UUID transactionId;
     private TransactionType transactionType;
+    private TransactionStatus transactionStatus;
     private PaymentMethod paymentMethod;
     private Currency currency;
     private String language;
