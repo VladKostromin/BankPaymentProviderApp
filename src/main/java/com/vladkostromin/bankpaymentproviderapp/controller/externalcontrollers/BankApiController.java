@@ -1,6 +1,5 @@
 package com.vladkostromin.bankpaymentproviderapp.controller.externalcontrollers;
 
-import com.vladkostromin.bankpaymentproviderapp.annotation.RandomNumber;
 import com.vladkostromin.bankpaymentproviderapp.entity.TransactionEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,6 @@ import java.util.Random;
 @Slf4j
 public class BankApiController {
 
-    @RandomNumber(bound = 100)
-    private int randomNumber;
 
     @PostMapping("/process-transaction")
     public Mono<ResponseEntity<TransactionEntity>> processTransaction(@RequestBody TransactionEntity transaction) {

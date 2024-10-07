@@ -12,12 +12,24 @@ logging:
 
 
 spring:
+  docker:
+    compose:
+      enabled: false
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/postgres
+    url: r2dbc:postgresql://db:5432/postgres
     username: postgres
     password: qaz923923
 
   flyway:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://db:5432/postgres
     user: ${spring.r2dbc.username}
     password: ${spring.r2dbc.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  sql:
+    init:
+      continue-on-error: true
+      mode: always

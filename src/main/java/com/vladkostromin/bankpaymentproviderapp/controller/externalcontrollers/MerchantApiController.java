@@ -1,6 +1,5 @@
 package com.vladkostromin.bankpaymentproviderapp.controller.externalcontrollers;
 
-import com.vladkostromin.bankpaymentproviderapp.annotation.RandomNumber;
 import com.vladkostromin.bankpaymentproviderapp.entity.WebhookEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,8 +17,6 @@ import java.util.Random;
 @RequestMapping("/api/merchant-api")
 public class MerchantApiController {
 
-    @RandomNumber(bound = 100)
-    private int randomNumber;
 
     @PostMapping("/receive-webhook")
     public Mono<ResponseEntity<WebhookEntity>> receiveWebhook(@RequestBody WebhookEntity webhookEntity) {
